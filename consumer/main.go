@@ -8,13 +8,19 @@ import (
 )
 
 func main() {
-	msg, err := rabbitmq.NewRabbitmq().Consume()
+	msg, err := rabbitmq.New().Consume()
 	if err != nil {
 		log.Panic(err)
 	}
 
-	for m := range msg {
-		fmt.Printf("[*] msg body: %s\n", string(m.Body))
-		fmt.Printf("[*] msg headers: %s\n", string(m.Body))
-	}
+	forever := make(chan bool)
+
+	go func() {
+		for m := range msg {
+			fmt.Printf("[*] msg body: %s\n", string(m.Body))
+			fmt.Printf("[*] msg headers: %s\n", string(m.Body))
+		}
+	}()
+
+	<-forever
 }

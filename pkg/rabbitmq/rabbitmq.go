@@ -13,7 +13,7 @@ type rabbitmq struct {
 	conn *amqp.Connection
 }
 
-func NewRabbitmq() *rabbitmq {
+func New() *rabbitmq {
 	return &rabbitmq{
 		conn: connect(),
 	}

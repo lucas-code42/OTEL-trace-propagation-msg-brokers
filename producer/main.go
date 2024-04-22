@@ -10,7 +10,7 @@ func main() {
 	body := "test body"
 
 	for i := range 10 {
-		if err := rabbitmq.NewRabbitmq().Publish(body); err != nil {
+		if err := rabbitmq.New().Publish(body); err != nil {
 			log.Panic(err)
 		}
 		log.Printf("[%d] Sent %s\n", i, body)
