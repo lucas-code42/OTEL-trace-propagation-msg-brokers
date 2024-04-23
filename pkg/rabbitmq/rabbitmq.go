@@ -2,7 +2,6 @@ package rabbitmq
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"time"
 
@@ -64,8 +63,7 @@ func (r *rabbitmq) Publish(body string) error {
 	defer cancel()
 
 	header := make(amqp.Table)
-	// header["traceID"] = fmt.Sprintf("%d%d%d%d%d", rand.Intn(9), rand.Intn(9), rand.Intn(9), rand.Intn(9), rand.Intn(9))
-	header["traceID"] = "1234456789"
+	header["traceID"] = "traceID_test"
 
 	err = ch.PublishWithContext(
 		ctx,     // context
@@ -79,7 +77,6 @@ func (r *rabbitmq) Publish(body string) error {
 			Headers:     header,
 		},
 	)
-	fmt.Println(err)
 	if err != nil {
 		return err
 	}

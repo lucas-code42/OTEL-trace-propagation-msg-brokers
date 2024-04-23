@@ -1,4 +1,4 @@
-package main
+package script
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ func failOnError(err error, msg string) {
 	}
 }
 
-func main() {
+func Script() {
 	conn, err := amqp.Dial("amqp://root:root@localhost:5672/")
 	failOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
