@@ -1,9 +1,9 @@
 package script
 
 import (
-	"fmt"
 	"log"
 
+	"github.com/lucas-code42/otel-trace-propagation-msg-brokers/pkg/rabbitmq"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
@@ -22,14 +22,13 @@ func Script() {
 	failOnError(err, "Failed to open a channel")
 	defer ch.Close()
 
-	q, err := ch.QueueDeclare(
-		"hello", // name
-		false,   // durable
-		false,   // delete when unused
-		false,   // exclusive
-		false,   // no-wait
-		nil,     // arguments
+	_, err = ch.QueueDeclare(
+		rabbitmq.QUEUE, // name
+		false,          // durable
+		false,          // delete when unused
+		false,          // exclusive
+		false,          // no-wait
+		nil,            // arguments
 	)
 	failOnError(err, "Failed to declare a queue")
-	fmt.Println("Sucess", q.Name)
 }

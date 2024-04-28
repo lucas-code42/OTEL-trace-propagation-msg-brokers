@@ -12,8 +12,6 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=root
       - RABBITMQ_DEFAULT_PASS=root
-    # networks:
-    #   - mynet
 
   jaeger:
     image: jaegertracing/all-in-one:latest
@@ -25,23 +23,6 @@ services:
       - "4318:4318"
       - "4317:4317"
 
-    # networks:
-    #   - mynet
     depends_on:
       - rabbitmq
   
-  # app:
-  #   container_name: app
-  #   build:
-  #     context: .
-  #     dockerfile: ./dockerfile
-  #   networks:
-  #     - mynet
-  #   depends_on:
-  #     rabbitmq:
-  #       condition: service_healthy
-
-
-# networks:
-#   mynet:
-#     driver: bridge

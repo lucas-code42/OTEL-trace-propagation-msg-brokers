@@ -5,7 +5,10 @@ import (
 	"log"
 
 	amqp "github.com/rabbitmq/amqp091-go"
-	"go.opentelemetry.io/otel/propagation"
+)
+
+const (
+	QUEUE = "example"
 )
 
 type rabbitmq struct {
@@ -53,34 +56,29 @@ func (r *rabbitmq) DeclareQueue(queueName string) error {
 	return nil
 }
 
-func (r *rabbitmq) Publish(ctx context.Context, body string) error {
+func (r *rabbitmq) Publish(
+	ctx context.Context,
+	body string,
+	header map[string][]string,
+) error {
 	ch, err := r.conn.Channel()
 	if err != nil {
 		return err
 	}
 
-	// traceId := map[string]string{"traceID": "1234567890"}
-
-	otelHeader := map[string][]string{}
-	p := propagation.NewCompositeTextMapPropagator(
-		propagation.TraceContext{},
-		propagation.Baggage{},
-	)
-	p.Inject(ctx, propagation.HeaderCarrier(otelHeader))
-
-	header := make(amqp.Table)
-	header["traceID"] = otelHeader["Traceparent"][0]
+	msgHeader := make(amqp.Table)
+	msgHeader["traceID"] = header["Traceparent"][0]
 
 	err = ch.PublishWithContext(
-		ctx,     // context
-		"",      // exchange
-		"hello", // routing key
-		false,   // mandatory
-		false,   // immediate
+		ctx,   // context
+		"",    // exchange
+		QUEUE, // routing key
+		false, // mandatory
+		false, // immediate
 		amqp.Publishing{
 			ContentType: "text/plain",
 			Body:        []byte(body),
-			Headers:     header,
+			Headers:     msgHeader,
 		},
 	)
 	if err != nil {
@@ -98,7 +96,7 @@ func (r *rabbitmq) Consume() (<-chan amqp.Delivery, error) {
 
 	msg, err := ch.ConsumeWithContext(
 		context.Background(),
-		"hello", // queue
+		QUEUE, // queue
 		"",
 		true,
 		false,

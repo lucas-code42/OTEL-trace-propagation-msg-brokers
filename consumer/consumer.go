@@ -6,6 +6,7 @@ import (
 	"log"
 
 	opentelemetry "github.com/lucas-code42/otel-trace-propagation-msg-brokers/pkg/otel"
+
 	"github.com/lucas-code42/otel-trace-propagation-msg-brokers/pkg/rabbitmq"
 	"go.opentelemetry.io/otel/propagation"
 )
@@ -16,7 +17,6 @@ func Consumer() {
 		log.Panic(err)
 	}
 
-	forever := make(chan bool)
 	go func() {
 		for m := range msg {
 			rabbitHeader := m.Headers["traceID"].(string)
@@ -34,8 +34,7 @@ func Consumer() {
 
 			fmt.Printf("[*] msg body: %s\n", string(m.Body))
 			fmt.Printf("[*] msg headers: %v\n", m.Headers)
-			break
+			break // just for end span...
 		}
 	}()
-	<-forever
 }
