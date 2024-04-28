@@ -3,9 +3,9 @@ package rabbitmq
 import (
 	"context"
 	"log"
-	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
+	"go.opentelemetry.io/otel/propagation"
 )
 
 type rabbitmq struct {
@@ -53,17 +53,23 @@ func (r *rabbitmq) DeclareQueue(queueName string) error {
 	return nil
 }
 
-func (r *rabbitmq) Publish(body string) error {
+func (r *rabbitmq) Publish(ctx context.Context, body string) error {
 	ch, err := r.conn.Channel()
 	if err != nil {
 		return err
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+	// traceId := map[string]string{"traceID": "1234567890"}
+
+	otelHeader := map[string][]string{}
+	p := propagation.NewCompositeTextMapPropagator(
+		propagation.TraceContext{},
+		propagation.Baggage{},
+	)
+	p.Inject(ctx, propagation.HeaderCarrier(otelHeader))
 
 	header := make(amqp.Table)
-	header["traceID"] = "traceID_test"
+	header["traceID"] = otelHeader["Traceparent"][0]
 
 	err = ch.PublishWithContext(
 		ctx,     // context

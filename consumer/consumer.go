@@ -19,17 +19,14 @@ func Consumer() {
 	forever := make(chan bool)
 	go func() {
 		for m := range msg {
-			v, b := m.Headers["traceID"]
-			fmt.Println(v, b)
+			rabbitHeader := m.Headers["traceID"].(string)
 
+			otelHeader := map[string][]string{"Traceparent": {rabbitHeader}}
 			p := propagation.NewCompositeTextMapPropagator(
 				propagation.TraceContext{},
 				propagation.Baggage{},
 			)
-			x := propagation.MapCarrier{}
-			ctx := p.Extract(context.Background(), x)
-
-			fmt.Println(x.Get("traceID"))
+			ctx := p.Extract(context.Background(), propagation.HeaderCarrier(otelHeader))
 
 			trace := opentelemetry.New(ctx, "consumer")
 			_, span := trace.Start(ctx, "consumer")
@@ -40,7 +37,5 @@ func Consumer() {
 			break
 		}
 	}()
-
-	fmt.Println("aqui fora")
 	<-forever
 }
