@@ -17,6 +17,7 @@ func Consumer() {
 		log.Panic(err)
 	}
 
+	var counter int
 	go func() {
 		for m := range msg {
 			rabbitHeader := m.Headers["traceID"].(string)
@@ -32,9 +33,13 @@ func Consumer() {
 			_, span := trace.Start(ctx, "consumer")
 			defer span.End()
 
-			fmt.Printf("[*] msg body: %s\n", string(m.Body))
-			fmt.Printf("[*] msg headers: %v\n", m.Headers)
-			break // just for end span...
+			fmt.Printf(`[*] event consume {"body": "%s", "header": "%v"}`, string(m.Body), m.Headers)
+			fmt.Println()
+
+			counter++
+			if counter >= 5 {
+				break
+			}
 		}
 	}()
 }

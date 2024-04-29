@@ -2,15 +2,16 @@ package producer
 
 import (
 	"context"
+	"fmt"
 	"log"
 
+	"github.com/google/uuid"
 	opentelemetry "github.com/lucas-code42/otel-trace-propagation-msg-brokers/pkg/otel"
 	"github.com/lucas-code42/otel-trace-propagation-msg-brokers/pkg/rabbitmq"
 	"go.opentelemetry.io/otel/propagation"
 )
 
 func Producer() {
-	body := "foobar"
 	ctx := context.Background()
 
 	tracer := opentelemetry.New(ctx, "producer")
@@ -24,9 +25,11 @@ func Producer() {
 	)
 	p.Inject(ctx, propagation.HeaderCarrier(otelHeader))
 
-	if err := rabbitmq.New().Publish(ctx, body, otelHeader); err != nil {
-		log.Panic(err)
+	for i := 0; i < 5; i++ {
+		body := uuid.NewString()
+		if err := rabbitmq.New().Publish(ctx, body, otelHeader); err != nil {
+			log.Panic(err)
+		}
+		fmt.Printf("[*] event sent - %s\n", body)
 	}
-
-	log.Printf("[*] Sent %s\n", body)
 }

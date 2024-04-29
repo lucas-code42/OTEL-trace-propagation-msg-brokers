@@ -3,6 +3,7 @@ module github.com/lucas-code42/otel-trace-propagation-msg-brokers
 go 1.22.1
 
 require (
+	github.com/google/uuid v1.6.0
 	github.com/rabbitmq/amqp091-go v1.9.0
 	go.opentelemetry.io/otel v1.25.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.25.0
